@@ -21,6 +21,12 @@
 
 void handle_server(int fd);
 
+void send_message_to_server(int server_fd);
+
+void receive_message_from_server(int fd);
+
+void close_connection(int fd, char actor[10]);
+
 int main(int argc, char *argv[]){
     int   fd;
     struct sockaddr_un  server_address;
@@ -45,34 +51,43 @@ void handle_server(int fd)
     char msg[max_buffer_length],buffer[max_buffer_length];
 
     while(1) {
-        printf("\n enter msg (close - to close the connection) : ");
-        bzero(msg, sizeof(msg));
-        fgets(msg, sizeof(msg), stdin);
-        msg[strlen(msg) - 1] = '\0';
-
-        // if the client enters "close" in the input, close the socket
-        if(strcmp(msg, "close")==0)
-        {
-            write(fd, msg, strlen(msg));
-            printf(" sent the 'close' message to the server");
-            // performs active close | step 1 in TCP close protocol
-            close(fd);
-            printf("\n the connection is closed (intiated by the client) \n");
-            exit(EXIT_SUCCESS);
-        }
-        printf(" sent the following message to the server : %s ", msg);
-        write(fd, msg, strlen(msg));
-
-        bzero(buffer, sizeof(buffer));
-        read(fd, buffer, max_buffer_length);
-        printf("\n Received the following message form server : %s ", buffer);
-        if(strcmp(buffer, "close")==0)
-        {
-            // passive close (close initiated from server)
-            close(fd);
-            printf("\n the connection is closed (intiated by the server) \n ");
-            break;
-        }
+        send_message_to_server(fd);
+        receive_message_from_server(fd);
     }
+
+}
+
+void send_message_to_server(int fd)
+{
+    char msg[MAX_BUFFER_LENGTH];
+    printf("\n enter msg (close - to close the connection) : ");
+    bzero(msg, sizeof(msg));
+    fgets(msg, sizeof(msg), stdin);
+    msg[strlen(msg) - 1] = '\0';
+    printf(" sent the following message to the server : %s ", msg);
+    write(fd, msg, strlen(msg));
+    if(strcmp(msg, "close")==0) {
+        close_connection(fd, "client");
+    }
+}
+
+
+
+void receive_message_from_server(int fd)
+{
+    char buffer[MAX_BUFFER_LENGTH];
+    read(fd, buffer, MAX_BUFFER_LENGTH);
+    printf("\n Received the following message form server : %s ", buffer);
+    if(strcmp(buffer, "close")==0)
+    {
+        // passive close (close initiated from server)
+        close_connection(fd, "server");
+    }
+}
+
+void close_connection(int fd, char actor[10])
+{
+    close(fd);
+    printf("\n the connection is closed (intiated by the %s ) \n", actor);
     exit(EXIT_SUCCESS);
 }

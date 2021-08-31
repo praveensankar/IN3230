@@ -21,8 +21,16 @@
 // to use exit declarations
 #include <stdlib.h>
 
-int handle_client(int client_fd);
+void handle_client(int client_fd);
 void shutdown_server(int server_fd, int number_of_clients);
+
+
+
+int send_message_to_client(int fd);
+
+int receive_message_from_client(int fd);
+
+
 
 int main(int argc, char *argv[])
 {
@@ -52,50 +60,66 @@ int main(int argc, char *argv[])
 
     printf(" socket is listening for new connections \n");
 
-    listen(server_fd, MAX_CONNECTIONS);
+    listen(server_fd, 1);
+    client_fd = accept(server_fd, NULL, NULL);
+    handle_client(client_fd);
+    shutdown_server(server_fd, 1);
 
-    while(connections--) {
-
-        client_fd = accept(server_fd, NULL, NULL);
-        int status = handle_client(client_fd);
-        if(status == -1 )
-            shutdown_server(server_fd, MAX_CONNECTIONS-connections);
-    }
-    shutdown_server(server_fd, MAX_CONNECTIONS-connections);
 }
 
 //client_fd - file descriptor for the socket
-int handle_client(int client_fd)
+void handle_client(int client_fd)
 {
     int max_buffer_length = MAX_BUFFER_LENGTH;
     char buffer[max_buffer_length], msg[max_buffer_length];
 
     while (1) {
-        bzero(buffer, sizeof(buffer));
-        read(client_fd, buffer, max_buffer_length);
-        printf("\n message from client : %s \n", buffer);
-
-        if (strcmp(buffer, "close") == 0) {
-            // passive close
+        if(receive_message_from_client(client_fd) == -1)
+        {
             close(client_fd);
-            return 1;
+            return;
+        }
+        if(send_message_to_client(client_fd) == -1)
+        {
+            close(client_fd);
+            return;
         }
 
-        printf("enter message to client : ");
-        bzero(msg, sizeof(msg));
-        fgets(msg, sizeof(msg), stdin);
-        msg[strlen(msg) - 1] = '\0';
-        write(client_fd, msg, strlen(msg));
-
-        if (strcmp(msg, "close") == 0) {
-            // performs active close and also exit the server socket which is listening for new connections
-            // return -1 to the main function to notify that server is going to shut down
-            close(client_fd);
-            return -1;
-        }
     }
-
 }
+
+int send_message_to_client(int fd)
+{
+    char msg[MAX_BUFFER_LENGTH];
+    printf("\n enter msg (close - to close the connection) : ");
+    bzero(msg, sizeof(msg));
+    fgets(msg, sizeof(msg), stdin);
+    msg[strlen(msg) - 1] = '\0';
+    printf(" sent the following message to the server : %s ", msg);
+    write(fd, msg, strlen(msg));
+    if(strcmp(msg, "close")==0) {
+        return -1;
+    }
+    else
+        return 0;
+}
+
+
+
+int receive_message_from_client(int fd)
+{
+    char buffer[MAX_BUFFER_LENGTH];
+    read(fd, buffer, MAX_BUFFER_LENGTH);
+    printf("\n Received the following message form server : %s ", buffer);
+    if(strcmp(buffer, "close")==0)
+    {
+        // passive close (close initiated from server)
+        return -1;
+    }
+    else
+        return 0;
+}
+
 // server_fd - file descriptor of the server
 // number_of_clients  - number of clients handled by the server
 void shutdown_server(int server_fd, int number_of_clients)
