@@ -54,14 +54,13 @@ void handle_server(int fd)
         send_message_to_server(fd);
         receive_message_from_server(fd);
     }
-
 }
 
 void send_message_to_server(int fd)
 {
     char msg[MAX_BUFFER_LENGTH];
     printf("\n enter msg (close - to close the connection) : ");
-    bzero(msg, sizeof(msg));
+    bzero(msg, MAX_BUFFER_LENGTH);
     fgets(msg, sizeof(msg), stdin);
     msg[strlen(msg) - 1] = '\0';
     printf(" sent the following message to the server : %s ", msg);
@@ -76,6 +75,7 @@ void send_message_to_server(int fd)
 void receive_message_from_server(int fd)
 {
     char buffer[MAX_BUFFER_LENGTH];
+    bzero(buffer, sizeof(buffer));
     read(fd, buffer, MAX_BUFFER_LENGTH);
     printf("\n Received the following message form server : %s ", buffer);
     if(strcmp(buffer, "close")==0)
@@ -83,6 +83,7 @@ void receive_message_from_server(int fd)
         // passive close (close initiated from server)
         close_connection(fd, "server");
     }
+
 }
 
 void close_connection(int fd, char actor[10])
