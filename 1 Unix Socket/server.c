@@ -90,7 +90,6 @@ int send_message_to_client(int fd)
     printf(" sent the following message to the server : %s ", msg);
     write(fd, msg, strlen(msg));
     if(strcmp(msg, "close")==0) {
-
         return -1;
     }
     else{
