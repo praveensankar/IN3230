@@ -121,16 +121,20 @@ void handle_client(int client_fd)
             free(username);
             return;
         }
-        if(send_message_to_client(client_fd, username) == -1)
+        int sent_status = send_message_to_client(client_fd, username);
+        if( sent_status == -1)
         {
             close(client_fd);
             free(username);
             return;
         }
 
+
     }
 }
-
+// returns 0 if sent successful
+// -1 if server wants to close the connection
+// -2 if server wants to shutdown
 int send_message_to_client(int fd, char *username)
 {
     char msg[MAX_BUFFER_LENGTH];
@@ -138,6 +142,7 @@ int send_message_to_client(int fd, char *username)
     bzero(msg, MAX_BUFFER_LENGTH);
     fgets(msg, sizeof(msg), stdin);
     msg[strlen(msg) - 1] = '\0';
+
     printf(" \n sent the following message to the client %s : %s ",username, msg);
     write(fd, msg, strlen(msg));
     if(strcmp(msg, "close")==0) {

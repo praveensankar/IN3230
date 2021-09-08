@@ -5,7 +5,7 @@
 #ifndef PILOT_CONNECTION_H
 
 // defines the path name for the unix socket
-#define SOCKET_NAME "serversocket2"
+#define SOCKET_NAME "serversocket1"
 
 // defines the maximum number of connections server can handle
 #define MAX_CONNECTIONS 2
