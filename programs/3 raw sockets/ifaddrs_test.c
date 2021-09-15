@@ -21,7 +21,8 @@ void print_mac_from_interface()
     for (ifp = ifaces; ifp != NULL; ifp = ifp->ifa_next) {
         /* We make certain that the ifa_addr member is actually set: */
         if (ifp->ifa_addr != NULL &&
-            ifp->ifa_addr->sa_family == AF_PACKET) {
+            ifp->ifa_addr->sa_family == AF_PACKET &&
+            strcmp(ifp->ifa_name,"lo")!=0) {
             display_mac(ifp);
             printf("\n");
         }
@@ -42,7 +43,12 @@ void display_mac(struct ifaddrs *ifp)
     printf("\n Interface address : ");
     printf("\n \t  family : %d", sock_addr->sll_family);
     printf("\n \t interface index : %d ", sock_addr->sll_ifindex);
-   // printf("\n \t physical address : %d", sock_addr->sll_addr);
+    printf("\n \t physical address : ");
+    for (int i = 0; i < 6; i++) {
+        printf("%x", sock_addr->sll_addr[i]);
+        if(i!=5)
+            printf(":");
+    }
     printf("\n \t packet type : %d ", sock_addr->sll_pkttype);
 }
 
