@@ -44,6 +44,10 @@ void display_mac(struct ifaddrs *ifp)
     printf("\n \t  family : %d", sock_addr->sll_family);
     printf("\n \t interface index : %d ", sock_addr->sll_ifindex);
     printf("\n \t physical address : ");
+
+    /*
+     mac address size : 48 bits == 6 ints == 12 hex
+     */
     for (int i = 0; i < 6; i++) {
         printf("%x", sock_addr->sll_addr[i]);
         if(i!=5)
