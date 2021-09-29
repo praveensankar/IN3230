@@ -11,14 +11,14 @@
 
 #define MAX_EVENTS 10
 #define BUF_SIZE 1450
-
+#define ETHERNET_TYPE_PROTO 0x88b5
 
 static uint8_t dst_addr[6];
 
 struct ether_frame {
     uint8_t dst_addr[6];
     uint8_t src_addr[6];
-    uint8_t eth_proto[2];
+    uint16_t eth_proto;
     uint8_t contents[0];
 } __attribute__((packed));
 
@@ -52,8 +52,8 @@ int create_socket()
     // 0x88b5 and 0x88b6 ethernet type protocols have been reserved for private and experimental purposes
     // ETH_P_ALL -  allows any EtherType to be received without using multiple sockets
     // 0xffff - broadcast address
-    int protocol = 0xffff;
-    int raw_sock = socket(AF_PACKET, SOCK_RAW, htons(protocol));
+
+    int raw_sock = socket(AF_PACKET, SOCK_RAW, htons(ETHERNET_TYPE_PROTO));
     if(raw_sock == -1)
     {
         perror("raw socket");
