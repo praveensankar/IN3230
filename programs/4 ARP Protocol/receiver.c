@@ -14,14 +14,6 @@
 // store the physical address of the incoming request
 static uint8_t dst_addr[6];
 
-struct ether_frame {
-    uint8_t dst_addr[6];
-    uint8_t src_addr[6];
-    uint8_t eth_proto[2];
-    uint8_t contents[0];
-} __attribute__((packed));
-
-
 int receive_arp_request(int raw_sock,struct sockaddr_ll source);
 int recv_raw_packet(int raw_sock);
 int send_raw_pocket(int sd,struct sockaddr_ll source);
@@ -146,8 +138,8 @@ int send_raw_pocket(int sd, struct sockaddr_ll source_sockaddr)
     memcpy(frame_hdr.dst_addr, dst_addr, 6);
     memcpy(frame_hdr.src_addr, source_sockaddr.sll_addr, 6);
     /* Match the ethertype in packet_socket.c: */
-   frame_hdr.eth_proto[0] = frame_hdr.eth_proto[1] = 0xFF;
-
+  // frame_hdr.eth_proto[0] = frame_hdr.eth_proto[1] = 0xFF;
+    frame_hdr.eth_proto = htons(ETH_PROTOCOL);
     /* Point to frame header */
     msgvec[0].iov_base = &frame_hdr;
     msgvec[0].iov_len  = sizeof(struct ether_frame);

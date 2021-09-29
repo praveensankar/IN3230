@@ -15,14 +15,6 @@
 #define ETH_BROADCAST_ADDR {0xff, 0xff, 0xff, 0xff, 0xff, 0xff}
 
 
-struct ether_frame {
-    uint8_t dst_addr[6];
-    uint8_t src_addr[6];
-   uint8_t eth_proto[2];
-    uint8_t contents[0];
-} __attribute__((packed));
-
-
 
 int send_raw_packet(int raw_sock, struct sockaddr_ll so_name);
 int receive_arp_response(int raw_sock, struct sockaddr_ll dst_addr);
@@ -58,8 +50,8 @@ int send_raw_packet(int sd, struct sockaddr_ll so_name)
     memcpy(frame_hdr.dst_addr, dst_addr, 6);
     memcpy(frame_hdr.src_addr, so_name.sll_addr, 6);
     /* Match the ethertype in packet_socket.c: */
-    frame_hdr.eth_proto[0] = frame_hdr.eth_proto[1] = 0xFF;
-
+   // frame_hdr.eth_proto[0] = frame_hdr.eth_proto[1] = 0xFF;
+    frame_hdr.eth_proto = htons(ETH_PROTOCOL);
     /* Point to frame header */
     msgvec[0].iov_base = &frame_hdr;
     msgvec[0].iov_len  = sizeof(struct ether_frame);
@@ -144,7 +136,6 @@ int receive_arp_response(int raw_sock,  struct  sockaddr_ll dest_sockaddr){
 
 int recv_raw_packet(int sd, struct sockaddr_ll dest_sockaddr)
 {
-    struct sockaddr_ll sockaddr;
     struct ether_frame  frame_hdr;
     struct msghdr       msg;
     struct iovec        msgvec[1];

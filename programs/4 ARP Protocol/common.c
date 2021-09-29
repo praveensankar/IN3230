@@ -10,6 +10,8 @@
 #include <arpa/inet.h>		/* htons */
 #include <ifaddrs.h>		/* getifaddrs */
 #include <strings.h> /* bzero */
+#include "common.h"
+
 
 
 int create_socket()
@@ -17,8 +19,8 @@ int create_socket()
     // 0x88b5 and 0x88b6 ethernet type protocols have been reserved for private and experimental purposes
     // ETH_P_ALL -  allows any EtherType to be received without using multiple sockets
     // 0xffff - broadcast address
-    int protocol = 0xFFFF;
-    int raw_sock = socket(AF_PACKET, SOCK_RAW, htons(protocol));
+   // int protocol = 0x88b5;
+    int raw_sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_PROTOCOL));
     if(raw_sock == -1)
     {
         perror("raw socket");
